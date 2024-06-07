@@ -15,14 +15,15 @@ export const Header = ({Lists}) => {
   }
     
   return (
-    <header className='bg-slate-500 h-24 w-full py-7 px-12 flex items-center fixed z-10 '>
-        <div className='flex items-center'>
-            <img className='h-10' src="cook-book.png" alt="Cook Book" />
-            <h1 className='text-xl text-white ml-4'>Food Recipe Finder</h1>
+    <header className='bg-slate-500 h-24 w-full py-7 flex items-center fixed z-10 px-12'>
+        <div className='flex items-center '>
+            <img className='h-10 ' src="cook-book.png" alt="Cook Book" />
+            <h1 className='text-xl text-white ml-4 max-md:hidden 
+                '>Food Recipe Finder</h1>
         </div>
-        <div className='flex-grow flex justify-center'>
-          <div className='w-72'>
-            <input className='outline-none p-4 rounded-2xl text-sm w-[270px] h-[40px]' 
+        <div className='flex-grow flex justify-center '>
+          <div>
+            <input className='outline-none p-4 rounded-2xl text-sm w-72 h-[40px] ' 
                 type="text"
                 placeholder='Search Recipe'
                 value={inputValue}
