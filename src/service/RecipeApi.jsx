@@ -3,9 +3,8 @@ import axios from "axios"
 const URL = "https://api.spoonacular.com/recipes/"
 const API_KEY = process.env.REACT_APP_API_KEY
 
-
 export const queryRandomRecipe = async () => {
-    return await axios.get(`${URL}random?number=10&apiKey=${API_KEY}`)
+    return await axios.get(`${URL}random?number=3&apiKey=${API_KEY}`)
                       .then(res => res.data.recipes)
                       .catch(err => err)
 }   
@@ -27,3 +26,8 @@ export const queryNutrients = async (id) => {
                       .catch(err => err)
 }
 
+export const queryInstructions = async (id) => {
+    return await axios.get(`${URL}${id}/analyzedInstructions?apiKey=${API_KEY}`)
+                        .then(res => res.data)
+                        .catch(err => err)
+}

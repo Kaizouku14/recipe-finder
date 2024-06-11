@@ -8,58 +8,65 @@ import {
   TabPanels
 } from '@tremor/react';
 import { useEffect, useState } from 'react';
-import { queryIngredients, queryNutrients } from '../service/RecipeApi';
+import { queryIngredients, queryNutrients , queryInstructions} from '../service/RecipeApi';
 import { toast } from 'sonner'
 
 export const InfoDialog = ({ isOpen, setOnClose, ID }) => {
   const [ingredients, setIngredients] = useState([]);
   const [nutrients, setNutrients] = useState([]);
+  const [instructions, setInstructions] = useState([]);
   const [loadingIngredients, setLoadingIngredients] = useState(true);
   const [loadingNutrients, setLoadingNutrients] = useState(true);
+  const [loadingInstructions, setLoadingInstructions] = useState(true)
+  const [activeTab, setActiveTab] = useState("Ingredients"); 
 
   useEffect(() => {
     if (ID <= 0) return;
-    let ingredientsTimeout, nutrientsTimeout;
 
-    setLoadingIngredients(true);
-    queryIngredients(ID)
-      .then(res => { 
-        ingredientsTimeout = setTimeout(() => {
-          setIngredients(res);
-          setLoadingIngredients(false);
+    const fetchData = async (queryFunction, setDataFunction, setLoadingFunction, errorMessage) => {
+      setLoadingFunction(true);
+      try {
+        const res = await queryFunction(ID);
+        setTimeout(() => {
+          setDataFunction(res);
+          setLoadingFunction(false);
         }, 2000);
-      })
-      .catch(err => {
-        toast.error('Error: Ingredients not found');
-        setLoadingIngredients(false);
-      });
+      } catch (err) {
+        toast.error(`Error: ${errorMessage}`);
+        setLoadingFunction(false);
+      }
+    };
 
-    setLoadingNutrients(true);
-    queryNutrients(ID)
-      .then(res => {
-        nutrientsTimeout = setTimeout(() => {
-          setNutrients(res);
-          setLoadingNutrients(false);
-        }, 2000);
-      })
-      .catch(err => {
-        toast.error('Error: Nutrients not found');
-        setLoadingNutrients(false);
-      });
+    fetchData(queryIngredients, setIngredients, setLoadingIngredients, 'Ingredients not found')
+    fetchData(queryNutrients, setNutrients, setLoadingNutrients, 'Nutrients not found')
+    fetchData(queryInstructions, setInstructions, setLoadingInstructions, 'Instructions not found')
 
     return () => {
-      clearTimeout(ingredientsTimeout);
-      clearTimeout(nutrientsTimeout);
+      clearTimeout(fetchData);
     };
   }, [ID]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setActiveTab("Ingredients");
+    }
+  }, [isOpen]);
+
+   const handleTabClick = (tabName) => {
+       setActiveTab(tabName)
+   }
 
   return (
     <Dialog open={isOpen} onClose={() => setOnClose(false)} static={true}>
       <DialogPanel className='bg-white rounded-xl h-[450px] relative'>
         <TabGroup>
           <TabList variant="line">
-            <Tab className="hover:text-blue-500">Ingredients</Tab>
-            <Tab className="hover:text-blue-500">Nutritions</Tab>
+            <Tab className={`hover:text-blue-500 ${activeTab === 'Ingredients' ? 'text-blue-500 ' : ''}`} 
+                 onClick={() => handleTabClick("Ingredients")}>Ingredients</Tab>
+            <Tab className={`hover:text-blue-500 ${activeTab === 'Nutritions' ? 'text-blue-500 ' : ''}`} 
+                 onClick={() => handleTabClick("Nutritions")} >Nutritions</Tab>
+            <Tab className={`hover:text-blue-500 ${activeTab === 'Instructions' ? 'text-blue-500 ' : ''}`}
+                 onClick={() => handleTabClick("Instructions")} >Instructions</Tab>
           </TabList>
           <TabPanels>
             <TabPanel className='h-[360px] rounded-md border-2 border-slate-500 overflow-auto'>
@@ -133,6 +140,33 @@ export const InfoDialog = ({ isOpen, setOnClose, ID }) => {
                   </table>
                 </div>
               )}
+            </TabPanel>
+            <TabPanel className='h-[360px] rounded-md border-2 border-slate-500 overflow-auto'>
+               {loadingInstructions ? (
+                  <div className="flex items-center justify-center h-[310px]">
+                    <p className='text-center'>Loading...</p>
+                  </div>
+               ) : (
+                <table className="min-w-full border border-gray-200">
+                  <thead>
+                    <tr>
+                      <th className="px-4 py-2">Step Number</th>
+                      <th className="px-4 py-2">Step Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {instructions.length > 0 && instructions.map((instruction, index) => (
+                      <tr key={index}>
+                        <td className="border px-4 py-2">{instruction.number}</td>
+                        <td className="border px-4 py-2">{instruction.step}</td>                
+                        
+                            {console.log(instruction.steps.number)}
+
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+               )}
             </TabPanel>
           </TabPanels>
         </TabGroup>

@@ -23,7 +23,8 @@ export const Header = ({Lists}) => {
         </div>
         <div className='flex-grow flex justify-center '>
           <div>
-            <input className='outline-none p-4 rounded-2xl text-sm w-72 h-[40px] ' 
+            <input className='outline-none p-4 rounded-2xl text-sm w-72 h-[40px] 
+                   max-md:w-60' 
                 type="text"
                 placeholder='Search Recipe'
                 value={inputValue}
