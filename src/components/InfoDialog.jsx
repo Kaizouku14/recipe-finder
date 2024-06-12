@@ -7,7 +7,7 @@ import {
   TabPanel,
   TabPanels
 } from '@tremor/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState} from 'react';
 import { queryIngredients, queryNutrients , queryInstructions} from '../service/RecipeApi';
 import { toast } from 'sonner'
 
@@ -21,6 +21,10 @@ export const InfoDialog = ({ isOpen, setOnClose, ID }) => {
   const [activeTab, setActiveTab] = useState("Ingredients"); 
 
   useEffect(() => {
+    if (!isOpen) {
+      setActiveTab("Ingredients");
+    }
+
     if (ID <= 0) return;
 
     const fetchData = async (queryFunction, setDataFunction, setLoadingFunction, errorMessage) => {
@@ -44,13 +48,8 @@ export const InfoDialog = ({ isOpen, setOnClose, ID }) => {
     return () => {
       clearTimeout(fetchData);
     };
-  }, [ID]);
 
-  useEffect(() => {
-    if (!isOpen) {
-      setActiveTab("Ingredients");
-    }
-  }, [isOpen]);
+  }, [isOpen, ID]);
 
    const handleTabClick = (tabName) => {
        setActiveTab(tabName)
@@ -142,31 +141,30 @@ export const InfoDialog = ({ isOpen, setOnClose, ID }) => {
               )}
             </TabPanel>
             <TabPanel className='h-[360px] rounded-md border-2 border-slate-500 overflow-auto'>
-               {loadingInstructions ? (
-                  <div className="flex items-center justify-center h-[310px]">
-                    <p className='text-center'>Loading...</p>
-                  </div>
-               ) : (
+              {loadingInstructions ? (
+                <div className="flex items-center justify-center h-[310px]">
+                  <p className='text-center'>Loading...</p>
+                </div>
+              ) : (
                 <table className="min-w-full border border-gray-200">
                   <thead>
                     <tr>
-                      <th className="px-4 py-2">Step Number</th>
-                      <th className="px-4 py-2">Step Description</th>
+                      <th className="px-4 py-2">Step No.</th>
+                      <th className="px-4 py-2">Description</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {instructions.length > 0 && instructions.map((instruction, index) => (
-                      <tr key={index}>
-                        <td className="border px-4 py-2">{instruction.number}</td>
-                        <td className="border px-4 py-2">{instruction.step}</td>                
-                        
-                            {console.log(instruction.steps.number)}
-
-                      </tr>
+                    {instructions.length > 0 && instructions.map((instruction, instructionIndex) => (
+                      instruction.steps.map((step, stepIndex) => (
+                        <tr key={instructionIndex + '-' + stepIndex}>
+                          <td className="border px-4 py-2">{step.number}</td>
+                          <td className="border px-4 py-2">{step.step}</td>
+                        </tr>
+                      ))
                     ))}
                   </tbody>
                 </table>
-               )}
+              )}
             </TabPanel>
           </TabPanels>
         </TabGroup>
